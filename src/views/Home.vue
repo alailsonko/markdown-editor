@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <v-row>
-      <v-col>
+      <v-col class="max-width-textarea">
         <div class="buttons-container">
           <v-btn small elevation="0">Image</v-btn>
           <v-btn small elevation="0">Video</v-btn>
@@ -20,18 +20,17 @@
           name="input-7-1"
           filled
           outlined
-          auto-grow
-          value="The Woodman set to work at once, and so sharp was his axe that the tree was soon chopped nearly through."
+          class="markdown-editor max-width-textarea-editor"
+          :value="input"
+          @input="update"
         ></v-textarea>
       </v-col>
+      <div class="vertical-line" />
       <v-col>
-        <v-textarea
-          name="input-7-1"
-          filled
-          outlined
-          auto-grow
-          disabled
-        ></v-textarea>
+        <div
+          class="max-width-textarea-output markdown-output"
+          v-html="compiledMarkdown"
+        ></div>
       </v-col>
     </v-row>
   </v-container>
@@ -39,11 +38,31 @@
 
 <script lang="ts">
 import Vue from "vue";
+import marked from "marked";
+import _ from "lodash";
+import decodeHtml from "decode-html";
 
 export default Vue.extend({
   name: "Home",
 
   components: {},
+  data() {
+    return {
+      input: "# hello",
+    };
+  },
+  computed: {
+    compiledMarkdown: function () {
+      const result = marked(this.input, { sanitize: true });
+      console.log(result);
+      return decodeHtml(result);
+    },
+  },
+  methods: {
+    update: _.debounce(function (e) {
+      this.input = e;
+    }, 300),
+  },
 });
 </script>
 
@@ -51,5 +70,30 @@ export default Vue.extend({
 .buttons-container {
   display: flex;
   justify-content: space-between;
+}
+
+.max-width-textarea-editor {
+  max-width: 960px;
+}
+
+.max-width-textarea-output {
+  max-width: 900px;
+}
+
+.markdown-editor {
+  white-space: normal !important;
+  max-width: 980px;
+}
+.markdown-output {
+  text-align: left !important;
+  margin-top: 2rem;
+}
+.vertical-line {
+  height: 100vh;
+  width: 2px;
+  margin: 0;
+  margin-right: 2rem;
+  padding: 0;
+  background-color: black;
 }
 </style>
